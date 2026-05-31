@@ -1,0 +1,8 @@
+{
+  "name": "monetize-me",
+  "version": "1.0.0",
+  "description": "Monetize Me - Identity to Income Platform",
+  "dependencies": {
+    "stripe": "^14.0.0"
+  }
+}

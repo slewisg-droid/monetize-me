@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monetize Me™ — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0D1B2E;--navy2:#162844;--navy3:#1E3A5F;
+  --blue:#2563EB;--blue-light:#EEF3FF;--blue-mid:#BFCFFD;
+  --text:#0D1B2E;--muted:#5A6A82;--hint:#9AABC2;
+  --bg:#F4F7FB;--surface:#FFFFFF;--border:#DDE5F0;
+  --green:#16A34A;--green-bg:#F0FDF4;
+  --orange:#EA580C;--purple:#7C3AED;
+  --serif:'Playfair Display',serif;--sans:'Inter',sans-serif;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text)}
+
+/* GATE SCREEN */
+#gate{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:var(--navy);padding:2rem;text-align:center}
+.gate-logo{font-family:var(--serif);font-size:28px;color:#fff;margin-bottom:2rem;display:flex;align-items:center;gap:10px;justify-content:center}
+.gate-m{width:36px;height:36px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;font-family:var(--sans)}
+.gate-spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1rem}
+.gate-txt{font-size:15px;color:rgba(255,255,255,0.5)}
+.gate-error{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:2rem;max-width:400px}
+.gate-error h2{font-family:var(--serif);font-size:22px;color:#fff;margin-bottom:8px}
+.gate-error p{font-size:14px;color:rgba(255,255,255,0.5);line-height:1.6;margin-bottom:1.5rem}
+.gate-btn{padding:12px 28px;border-radius:8px;background:var(--blue);color:#fff;font-family:var(--sans);font-size:14px;font-weight:500;border:none;cursor:pointer;text-decoration:none;display:inline-block;transition:background .2s}
+.gate-btn:hover{background:#1d4ed8}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* APP */
+#app{display:none;flex-direction:column;min-height:100vh}
+.hdr{background:var(--navy);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--serif);color:#fff;font-size:17px;letter-spacing:-0.2px}
+.brand-m{width:26px;height:26px;border-radius:6px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;font-family:var(--sans)}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.hdr-user{font-size:12px;color:rgba(255,255,255,0.45)}
+.hdr-tabs{display:flex;gap:2px}
+.ht{padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500;color:rgba(255,255,255,.55);cursor:pointer;border:none;background:none;font-family:var(--sans);transition:all .15s}
+.ht:hover,.ht.on{color:#fff;background:rgba(255,255,255,.12)}
+.body{display:flex;flex:1}
+.side{width:200px;background:var(--surface);border-right:.5px solid var(--border);padding:1.25rem .875rem;flex-shrink:0}
+.s-lbl{font-size:10px;font-weight:600;color:var(--hint);letter-spacing:.08em;text-transform:uppercase;padding:0 8px;margin-bottom:5px}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:1px;transition:all .15s}
+.ni:hover{background:var(--blue-light);color:var(--blue)}
+.ni.on{background:var(--blue-light);color:var(--blue)}
+.ni i{font-size:15px;flex-shrink:0}
+.badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;margin-left:auto}
+.b-done{background:var(--green-bg);color:var(--green)}
+.b-go{background:var(--blue-light);color:var(--blue)}
+.b-lock{background:#F1F5F9;color:var(--hint)}
+.side-prog{margin-top:1.25rem;padding-top:1.25rem;border-top:.5px solid var(--border)}
+.sp-lbl{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:5px}
+.sp-bar{height:5px;background:#E4EBF5;border-radius:3px;overflow:hidden}
+.sp-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .4s}
+.sp-pct{font-size:11px;color:var(--hint);margin-top:3px;text-align:right}
+.main{flex:1;padding:1.75rem;overflow-y:auto;min-width:0}
+.view{display:none}.view.on{display:block}
+.pg-eye{font-size:11px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.pg-h{font-family:var(--serif);font-size:26px;color:var(--navy);line-height:1.2;margin-bottom:6px}
+.pg-sub{font-size:14px;color:var(--muted);line-height:1.6;max-width:520px;margin-bottom:1.5rem}
+.btn{padding:9px 20px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:var(--sans);display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.btn-dark{background:var(--navy);color:#fff}.btn-dark:hover{background:var(--navy2)}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#1d4ed8}
+.btn-out{background:none;color:var(--muted);border:1.5px solid var(--border)}.btn-out:hover{border-color:var(--blue);color:var(--blue)}
+.btn-ai{width:100%;padding:8px;background:var(--blue-light);border:1.5px dashed var(--blue-mid);border-radius:7px;color:var(--blue);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;margin-top:7px}
+.btn-ai:hover{background:#dde8ff}
+.card{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:1.25rem}
+.quiz-wrap{max-width:600px}
+.qn{font-size:11px;font-weight:600;color:var(--hint);margin-bottom:3px}
+.qt{font-size:17px;font-weight:600;color:var(--navy);margin-bottom:1.25rem;line-height:1.4}
+.qopts{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem}
+.qo{padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text);transition:all .15s;display:flex;align-items:center;gap:9px}
+.qo:hover{border-color:var(--blue);background:var(--blue-light);color:var(--blue)}
+.qo.sel{border-color:var(--blue);background:var(--blue-light);color:var(--blue)}
+.qo-ic{width:30px;height:30px;border-radius:7px;background:#EEF3FF;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.qo.sel .qo-ic{background:var(--blue);color:#fff}
+.qta{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:var(--sans);color:var(--text);outline:none;resize:vertical;min-height:75px;background:var(--surface)}
+.qta:focus{border-color:var(--blue)}
+.qbar{display:flex;align-items:center;gap:10px}
+.qpb{flex:1;height:3px;background:#E4EBF5;border-radius:2px;overflow:hidden}
+.qpf{height:100%;border-radius:2px;background:var(--blue);transition:width .3s}
+.ai-spin{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2.5rem;gap:10px}
+.spinner{width:36px;height:36px;border:2.5px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+.spin-txt{font-size:13px;color:var(--muted)}.spin-sub{font-size:11px;color:var(--hint)}
+.hbox{background:var(--navy);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem}
+.hb-eye{font-size:10px;font-weight:600;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.hb-h{font-family:var(--serif);font-size:19px;color:#fff;margin-bottom:4px}
+.hb-s{font-size:13px;color:rgba(255,255,255,.6);line-height:1.5}
+.bg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.bl{font-size:10px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.bv{font-size:14px;font-weight:600;color:var(--navy)}
+.bb{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.5}
+.tag{display:inline-flex;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;margin:2px;background:var(--blue-light);color:#185FA5}
+.bdr{border-left:2.5px solid var(--blue);border-radius:0;padding-left:1rem}
+.fl-row{display:flex;gap:1.25rem;align-items:flex-start}
+.fl-l{flex:1;min-width:0}.fl-r{width:240px;flex-shrink:0}
+.fl{margin-bottom:1rem}
+.fl-lbl{font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px;display:block}
+.fi{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:var(--sans);color:var(--text);outline:none;background:var(--surface)}
+.fi:focus{border-color:var(--blue)}
+.fta{min-height:80px;resize:vertical;line-height:1.5}
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.to{padding:9px;border:1.5px solid var(--border);border-radius:7px;cursor:pointer;text-align:center;transition:all .15s}
+.to:hover,.to.sel{border-color:var(--blue);background:var(--blue-light)}
+.to i{font-size:18px;color:var(--muted);display:block;margin-bottom:3px}
+.to.sel i,.to:hover i{color:var(--blue)}
+.to span{font-size:11px;font-weight:600;color:var(--muted)}
+.to.sel span{color:var(--blue)}
+.prev-card{background:var(--surface);border:.5px solid var(--border);border-radius:11px;overflow:hidden;position:sticky;top:0}
+.prev-hdr{background:var(--navy);padding:.875rem 1.1rem}
+.prev-badge{font-size:9px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+.prev-title{font-family:var(--serif);font-size:15px;color:#fff;line-height:1.3}
+.prev-price{font-size:20px;font-weight:600;color:#fff;margin-top:6px}
+.prev-body{padding:.875rem 1.1rem}
+.pr{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:.5px solid var(--border);color:var(--muted)}
+.pr:last-child{border:none}
+.pr strong{color:var(--text);font-weight:600}
+.ai-out{background:var(--blue-light);border:1.5px solid var(--blue-mid);border-radius:9px;padding:.875rem;font-size:13px;color:var(--navy);line-height:1.6;margin-top:8px}
+.phases{display:flex;flex-direction:column;gap:10px}
+.ph-card{background:var(--surface);border:.5px solid var(--border);border-radius:11px;overflow:hidden}
+.ph-hdr{padding:.875rem 1.1rem;display:flex;align-items:center;gap:10px}
+.ph-num{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.pn1{background:#EEF3FF;color:var(--blue)}.pn2{background:var(--green-bg);color:var(--green)}
+.pn3{background:#FFF7ED;color:var(--orange)}.pn4{background:#F5F3FF;color:var(--purple)}
+.ph-title{font-size:14px;font-weight:600;color:var(--navy);flex:1}
+.ph-time{font-size:11px;color:var(--muted);font-weight:500}
+.ph-body{border-top:.5px solid var(--border);padding:1rem 1.1rem}
+.task{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--muted);margin-bottom:7px}
+.task:last-child{margin:0}
+.tck{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border);flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.tck.done{background:var(--green);border-color:var(--green)}
+.tck.done::after{content:'✓';color:#fff;font-size:10px}
+.task.done .ttxt{text-decoration:line-through;color:var(--hint)}
+.rev-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1.25rem}
+.rv{background:var(--navy);border-radius:10px;padding:1rem;text-align:center}
+.rv-val{font-family:var(--serif);font-size:20px;color:#fff}
+.rv-lbl{font-size:10px;color:rgba(255,255,255,.45);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.sp-out{background:var(--surface);border:.5px solid var(--border);border-radius:11px;padding:1.5rem;font-size:13px;color:var(--text);line-height:1.8;white-space:pre-wrap;min-height:120px}
+.em-list{display:flex;flex-direction:column;gap:10px}
+.em-card{background:var(--surface);border:.5px solid var(--border);border-radius:11px;overflow:hidden}
+.em-hdr{padding:.75rem 1rem;display:flex;align-items:center;gap:8px;cursor:pointer}
+.em-num{width:22px;height:22px;border-radius:5px;background:var(--blue-light);color:var(--blue);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.em-subj{font-size:13px;font-weight:600;color:var(--navy);flex:1}
+.em-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;background:#F1F5F9;color:var(--muted)}
+.em-body{border-top:.5px solid var(--border);padding:.875rem 1rem;font-size:13px;color:var(--muted);line-height:1.7;white-space:pre-wrap}
+.copy-btn{font-size:11px;font-weight:600;color:var(--blue);background:none;border:none;cursor:pointer;font-family:var(--sans);padding:0;display:flex;align-items:center;gap:4px;margin-top:8px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- GATE -->
+<div id="gate">
+  <div class="gate-logo"><div class="gate-m">M</div> Monetize Me™</div>
+  <div class="gate-spinner"></div>
+  <p class="gate-txt">Verifying your subscription…</p>
+</div>
+
+<!-- APP (hidden until verified) -->
+<div id="app">
+  <div class="hdr">
+    <div class="brand"><div class="brand-m">M</div> Monetize Me™</div>
+    <div class="hdr-right">
+      <span class="hdr-user" id="hdr-email"></span>
+      <div class="hdr-tabs">
+        <button class="ht on" onclick="sv('quiz')">Blueprint</button>
+        <button class="ht" onclick="sv('builder')">Product</button>
+        <button class="ht" onclick="sv('launch')">Launch</button>
+        <button class="ht" onclick="sv('sales')">Sales Page</button>
+        <button class="ht" onclick="sv('emails')">Emails</button>
+      </div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="side">
+      <div class="s-lbl">Your journey</div>
+      <div class="ni on" id="ni-quiz" onclick="sv('quiz')">🎯 Identity quiz <span class="badge b-go" id="bd-quiz">Start</span></div>
+      <div class="ni" id="ni-bp" onclick="sv('bp')">🗺️ My blueprint <span class="badge b-lock" id="bd-bp">Locked</span></div>
+      <div class="ni" id="ni-builder" onclick="sv('builder')">📦 Product builder <span class="badge b-lock" id="bd-builder">Locked</span></div>
+      <div class="ni" id="ni-launch" onclick="sv('launch')">🚀 Launch plan <span class="badge b-lock" id="bd-launch">Locked</span></div>
+      <div class="ni" id="ni-sales" onclick="sv('sales')">📄 Sales page <span class="badge b-lock" id="bd-sales">Locked</span></div>
+      <div class="ni" id="ni-emails" onclick="sv('emails')">✉️ Email sequence <span class="badge b-lock" id="bd-emails">Locked</span></div>
+      <div class="side-prog">
+        <div class="sp-lbl">Progress</div>
+        <div class="sp-bar"><div class="sp-fill" id="sp-fill" style="width:5%"></div></div>
+        <div class="sp-pct" id="sp-pct">5%</div>
+      </div>
+    </div>
+    <div class="main">
+
+      <div class="view on" id="view-quiz">
+        <div class="pg-eye">Step 1 of 6</div>
+        <div class="pg-h">Discover your monetizable identity</div>
+        <div class="pg-sub">A few questions to map who you are and what you can uniquely offer the world.</div>
+        <div class="quiz-wrap card" id="qwrap">
+          <div class="qn" id="qn"></div>
+          <div class="qt" id="qt"></div>
+          <div class="qopts" id="qopts"></div>
+          <div class="qbar">
+            <button class="btn btn-out" id="btn-back" onclick="qBack()" style="display:none">Back</button>
+            <div class="qpb"><div class="qpf" id="qpf" style="width:16%"></div></div>
+            <button class="btn btn-dark" id="btn-next" onclick="qNext()">Continue →</button>
+          </div>
+        </div>
+        <div class="ai-spin hidden" id="qload">
+          <div class="spinner"></div>
+          <div class="spin-txt">Analyzing your identity profile…</div>
+          <div class="spin-sub">Claude is building your personalized blueprint</div>
+        </div>
+      </div>
+
+      <div class="view" id="view-bp">
+        <div class="pg-eye">Your AI blueprint</div>
+        <div class="pg-h">Your monetization roadmap</div>
+        <div class="pg-sub">Generated from your answers — your personalized path from identity to income.</div>
+        <div id="bp-content"><div class="ai-spin"><div class="spinner"></div><div class="spin-txt">Building your blueprint…</div></div></div>
+        <div id="bp-actions" class="hidden" style="display:flex;gap:8px;margin-top:1.25rem">
+          <button class="btn btn-dark" onclick="sv('builder')">Build my product →</button>
+          <button class="btn btn-out" onclick="regenBP()">↺ Regenerate</button>
+        </div>
+      </div>
+
+      <div class="view" id="view-builder">
+        <div class="pg-eye">Step 3 of 6</div>
+        <div class="pg-h">Build your digital product</div>
+        <div class="pg-sub">Define your offer. AI will sharpen your positioning and copy.</div>
+        <div class="fl-row">
+          <div class="fl-l">
+            <div class="fl">
+              <span class="fl-lbl">Product type</span>
+              <div class="tgrid">
+                <div class="to sel" id="to-course" onclick="selType('course')"><i>📚</i><span>Online course</span></div>
+                <div class="to" id="to-ebook" onclick="selType('ebook')"><i>📖</i><span>Ebook / guide</span></div>
+                <div class="to" id="to-template" onclick="selType('template')"><i>📋</i><span>Template pack</span></div>
+                <div class="to" id="to-coaching" onclick="selType('coaching')"><i>🎙️</i><span>Coaching program</span></div>
+              </div>
+            </div>
+            <div class="fl"><span class="fl-lbl">Product title</span><input class="fi" id="p-title" placeholder="e.g. The 30-Day Brand Clarity Blueprint" oninput="updPrev()"><button class="btn-ai" onclick="aiTitle()">✦ Suggest title with AI</button><div id="title-out" class="hidden"></div></div>
+            <div class="fl"><span class="fl-lbl">Who is this for?</span><input class="fi" id="p-audience" placeholder="e.g. First-time entrepreneurs who want clarity on their niche" oninput="updPrev()"></div>
+            <div class="fl"><span class="fl-lbl">What transformation do you deliver?</span><textarea class="fi fta" id="p-outcome" placeholder="e.g. Go from stuck and underpaid to confidently charging what you're worth…" oninput="updPrev()"></textarea><button class="btn-ai" onclick="aiOutcome()">✦ Write this with AI</button></div>
+            <div style="margin-top:1.25rem;display:flex;gap:8px"><button class="btn btn-dark" onclick="goLaunch()">Create launch plan →</button></div>
+          </div>
+          <div class="fl-r">
+            <div class="prev-card">
+              <div class="prev-hdr"><div class="prev-badge">Digital product</div><div class="prev-title" id="pv-title">Your product title</div><div class="prev-price">$1 / month access</div></div>
+              <div class="prev-body">
+                <div class="pr"><span>Type</span><strong id="pv-type">Online course</strong></div>
+                <div class="pr"><span>Audience</span><strong id="pv-aud">—</strong></div>
+                <div class="pr"><span>Format</span><strong>Digital delivery</strong></div>
+                <div class="pr"><span>Status</span><strong style="color:var(--green)">Active</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="view" id="view-launch">
+        <div class="pg-eye">Step 4 of 6</div>
+        <div class="pg-h">Your 30-day launch plan</div>
+        <div class="pg-sub">A personalized roadmap to take your product from idea to audience.</div>
+        <div id="launch-content"><div class="ai-spin"><div class="spinner"></div><div class="spin-txt">Building your launch plan…</div></div></div>
+      </div>
+
+      <div class="view" id="view-sales">
+        <div class="pg-eye">Step 5 of 6</div>
+        <div class="pg-h">Sales page generator</div>
+        <div class="pg-sub">AI writes your full sales page copy — headline, hook, benefits, and call to action.</div>
+        <div id="sales-content"><div class="ai-spin"><div class="spinner"></div><div class="spin-txt">Writing your sales page…</div></div></div>
+      </div>
+
+      <div class="view" id="view-emails">
+        <div class="pg-eye">Step 6 of 6</div>
+        <div class="pg-h">Launch email sequence</div>
+        <div class="pg-sub">A 5-email welcome and launch sequence, written and ready to copy into your email platform.</div>
+        <div id="emails-content"><div class="ai-spin"><div class="spinner"></div><div class="spin-txt">Writing your emails…</div></div></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '/api/claude-proxy';
+
+async function claude(messages, max_tokens = 1000) {
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, max_tokens })
+  });
+  const data = await res.json();
+  return data.content.map(b => b.text || '').join('').trim();
+}
+
+async function verifyAccess() {
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session_id');
+  if (!sessionId) {
+    showGateError('No subscription found.', 'Please subscribe to access Monetize Me™.');
+    return;
+  }
+  try {
+    const res = await fetch(`/api/verify-session?session_id=${sessionId}`);
+    const data = await res.json();
+    if (data.valid) {
+      sessionStorage.setItem('mm_session', sessionId);
+      sessionStorage.setItem('mm_email', data.customer_email || '');
+      showApp(data.customer_email);
+    } else {
+      showGateError('Payment not verified.', 'If you just subscribed, please wait a moment and refresh.');
+    }
+  } catch (e) {
+    const saved = sessionStorage.getItem('mm_session');
+    if (saved) { showApp(sessionStorage.getItem('mm_email') || ''); }
+    else { showGateError('Could not verify subscription.', 'Please try refreshing the page.'); }
+  }
+}
+
+function showApp(email) {
+  document.getElementById('gate').style.display = 'none';
+  const app = document.getElementById('app');
+  app.style.display = 'flex';
+  if (email) document.getElementById('hdr-email').textContent = email;
+  renderQ();
+}
+
+function showGateError(title, msg) {
+  document.getElementById('gate').innerHTML = `
+    <div class="gate-logo"><div class="gate-m">M</div> Monetize Me™</div>
+    <div class="gate-error">
+      <h2>${title}</h2>
+      <p>${msg}</p>
+      <a href="/" class="gate-btn">← Back to homepage</a>
+    </div>`;
+}
+
+const QS = [
+  {t:"What's one thing you know really well — or people always come to you for?",isText:true,ph:"e.g. social media marketing, budgeting, cooking healthy meals, confidence coaching…"},
+  {t:"How would you describe yourself right now?",opts:[{ic:"💼",l:"Working a job, exploring side income"},{ic:"⭐",l:"Freelancer or self-employed"},{ic:"🏠",l:"Stay-at-home parent or caregiver"},{ic:"🚀",l:"Already running a business"},{ic:"🎓",l:"Student or recent grad"},{ic:"❤️",l:"Between things, figuring it out"}]},
+  {t:"What's your #1 goal for building a digital product?",opts:[{ic:"💰",l:"Replace or supplement my income"},{ic:"⏰",l:"Create something that earns passively"},{ic:"🌐",l:"Build a personal brand or platform"},{ic:"👥",l:"Help more people than I can 1-on-1"},{ic:"📈",l:"Validate an idea before going bigger"}]},
+  {t:"How comfortable are you with putting yourself out there online?",opts:[{ic:"🔒",l:"Very private — prefer behind the scenes"},{ic:"👀",l:"A little shy, but open to it"},{ic:"🎤",l:"Comfortable sharing my thoughts and story"},{ic:"⭐",l:"I already have an audience or following"}]},
+  {t:"Have you ever tried to sell or share your knowledge online?",opts:[{ic:"❌",l:"No, this is brand new to me"},{ic:"❓",l:"I've tried something small, not sure it worked"},{ic:"✅",l:"Yes — with some success"},{ic:"📈",l:"Yes — and I want to scale it now"}]},
+  {t:"What does success look like for you in 6 months?",isText:true,ph:"e.g. earning an extra $2k/month, quitting my job, having 100 customers, launching my first product…"}
+];
+
+let cQ=0,ans={},selOpt=null,bpData=null,pType='course';
+let launchDone=false,salesDone=false,emailsDone=false;
+
+function renderQ(){
+  const q=QS[cQ];
+  document.getElementById('qn').textContent=`Question ${cQ+1} of ${QS.length}`;
+  document.getElementById('qt').textContent=q.t;
+  document.getElementById('qpf').style.width=`${((cQ+1)/QS.length)*100}%`;
+  document.getElementById('btn-back').style.display=cQ>0?'inline-flex':'none';
+  const oc=document.getElementById('qopts');oc.innerHTML='';
+  selOpt=ans[cQ]!==undefined?ans[cQ]:null;
+  if(q.isText){
+    const ta=document.createElement('textarea');ta.className='qta';ta.placeholder=q.ph||'';ta.value=ans[cQ]||'';
+    ta.oninput=e=>{ans[cQ]=e.target.value;};oc.appendChild(ta);
+  } else {
+    q.opts.forEach((o,i)=>{
+      const d=document.createElement('div');d.className='qo'+(selOpt===i?' sel':'');
+      d.innerHTML=`<div class="qo-ic">${o.ic}</div><span>${o.l}</span>`;
+      d.onclick=()=>{document.querySelectorAll('.qo').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');selOpt=i;ans[cQ]=i;};
+      oc.appendChild(d);
+    });
+  }
+}
+
+function qNext(){
+  const q=QS[cQ];
+  if(q.isText&&!ans[cQ])return;
+  if(!q.isText&&selOpt===null&&ans[cQ]===undefined)return;
+  if(cQ<QS.length-1){cQ++;renderQ();}else submitQ();
+}
+function qBack(){if(cQ>0){cQ--;renderQ();}}
+
+function submitQ(){
+  document.getElementById('qwrap').classList.add('hidden');
+  document.getElementById('qload').classList.remove('hidden');
+  setTimeout(()=>{unlock('bp');sv('bp');genBP();},1500);
+}
+
+function getAns(i){const v=ans[i];if(v===undefined)return null;if(QS[i].isText)return v;return QS[i].opts[v].l;}
+
+async function genBP(){
+  const prompt=`You are an expert digital product strategist. Based on this person:
+- Expertise: "${ans[0]||'their expertise'}"
+- Situation: ${getAns(1)||'professional'}
+- Goal: ${getAns(2)||'income growth'}
+- Visibility comfort: ${getAns(3)||'open'}
+- Experience: ${getAns(4)||'new'}
+- 6-month vision: "${ans[5]||'financial freedom'}"
+Return ONLY valid JSON, no markdown:
+{"niche":"2-4 word niche","tagline":"one compelling positioning sentence","product_type":"best product format","product_name":"specific catchy product name","target_audience":"specific customer description","top_strengths":["s1","s2","s3"],"differentiator":"1 sentence unique angle","first_step":"single most important first action"}`;
+  try{
+    const t=await claude([{role:'user',content:prompt}],800);
+    bpData=JSON.parse(t.replace(/```json|```/g,'').trim());
+  }catch(e){
+    bpData={niche:"Knowledge & Coaching",tagline:"Turn what you know into a product that earns while you sleep.",product_type:"Online course",product_name:"The Clarity Method",target_audience:"People who want transformation without overwhelm",top_strengths:["Lived experience","Relatable story","Action-oriented teaching"],differentiator:"Your authentic journey creates a connection no generic course can replicate.",first_step:"Record a 5-minute video explaining the #1 mistake your audience makes."};
+  }
+  renderBP(bpData);
+  if(!document.getElementById('p-title').value)document.getElementById('p-title').value=bpData.product_name;
+  if(!document.getElementById('p-audience').value)document.getElementById('p-audience').value=bpData.target_audience;
+  updPrev();updProgress();
+}
+
+function renderBP(d){
+  document.getElementById('bp-content').innerHTML=`
+    <div class="hbox"><div class="hb-eye">Your CEO niche</div><div class="hb-h">${d.niche}</div><div class="hb-s">${d.tagline}</div></div>
+    <div class="bg2">
+      <div class="card"><div class="bl">Recommended product</div><div class="bv">${d.product_type}</div><div class="bb">${d.product_name}</div></div>
+      <div class="card"><div class="bl">Target customer</div><div class="bv" style="font-size:13px">${d.target_audience}</div></div>
+      <div class="card" style="grid-column:1/-1"><div class="bl">Your strengths</div><div style="margin-top:5px">${d.top_strengths.map(s=>`<span class="tag">${s}</span>`).join('')}</div></div>
+      <div class="card" style="grid-column:1/-1"><div class="bl">Your unique edge</div><div class="bb" style="color:var(--navy);font-size:14px">${d.differentiator}</div></div>
+      <div class="card bdr" style="grid-column:1/-1"><div class="bl">Your first step</div><div class="bb" style="color:var(--navy);font-weight:500">${d.first_step}</div></div>
+    </div>`;
+  const ba=document.getElementById('bp-actions');ba.classList.remove('hidden');ba.style.display='flex';
+  unlock('builder');
+}
+
+function regenBP(){
+  document.getElementById('bp-content').innerHTML='<div class="ai-spin"><div class="spinner"></div><div class="spin-txt">Regenerating…</div></div>';
+  document.getElementById('bp-actions').classList.add('hidden');genBP();
+}
+
+function selType(t){pType=t;['course','ebook','template','coaching'].forEach(x=>document.getElementById('to-'+x).classList.toggle('sel',x===t));updPrev();}
+
+function updPrev(){
+  const title=document.getElementById('p-title').value;
+  const aud=document.getElementById('p-audience').value;
+  const tl={course:'Online course',ebook:'Ebook / guide',template:'Template pack',coaching:'Coaching program'};
+  document.getElementById('pv-title').textContent=title||'Your product title';
+  document.getElementById('pv-type').textContent=tl[pType];
+  document.getElementById('pv-aud').textContent=aud?(aud.length>22?aud.slice(0,20)+'…':aud):'—';
+  updProgress();
+}
+
+async function aiTitle(){
+  const aud=document.getElementById('p-audience').value;
+  const out=document.getElementById('title-out');out.classList.remove('hidden');
+  out.innerHTML='<div class="ai-out"><div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0 auto"></div></div>';
+  try{
+    const t=await claude([{role:'user',content:`Generate 3 compelling digital product titles for expertise in "${ans[0]||'this topic'}" targeting "${aud||'motivated people'}". Each under 10 words. Return ONLY a JSON array of 3 strings.`}],200);
+    const titles=JSON.parse(t.replace(/```json|```/g,'').trim());
+    out.innerHTML=`<div class="ai-out"><div style="font-size:11px;font-weight:600;color:var(--hint);margin-bottom:8px">Click to use:</div>${titles.map(ti=>`<div style="padding:5px 0;cursor:pointer;border-bottom:.5px solid var(--blue-mid);color:var(--navy);font-weight:500;font-size:13px" onclick="document.getElementById('p-title').value='${ti.replace(/'/g,"\\'")}';updPrev()">→ ${ti}</div>`).join('')}</div>`;
+  }catch(e){out.innerHTML='<div class="ai-out">Try: "The [Result] Blueprint" or "From Zero to [Outcome] in [Timeframe]"</div>';}
+}
+
+async function aiOutcome(){
+  const title=document.getElementById('p-title').value;const ta=document.getElementById('p-outcome');ta.value='Writing…';
+  try{
+    const t=await claude([{role:'user',content:`Write a powerful 2-sentence transformation statement for "${title||'this product'}" for "${document.getElementById('p-audience').value||'motivated people'}". Specific and outcome-focused. Return ONLY the statement.`}],150);
+    ta.value=t;
+  }catch(e){ta.value='Go from overwhelmed and undercharging to confidently packaging your expertise into a product that earns on autopilot.';}
+}
+
+async function goLaunch(){unlock('launch');sv('launch');if(!launchDone){launchDone=true;await genLaunch();}}
+
+async function genLaunch(){
+  const title=document.getElementById('p-title').value||(bpData&&bpData.product_name)||'your digital product';
+  const aud=document.getElementById('p-audience').value||(bpData&&bpData.target_audience)||'your audience';
+  try{
+    const t=await claude([{role:'user',content:`Create a 30-day digital product launch plan for "${title}" targeting "${aud}". Focus on audience building. Return ONLY JSON: {"launch_goal":"X sign-ups","phases":[{"phase":1,"title":"Foundation","days":"Days 1–7","tasks":["t1","t2","t3","t4"]},{"phase":2,"title":"Content & Community","days":"Days 8–14","tasks":["t1","t2","t3","t4"]},{"phase":3,"title":"Pre-launch buzz","days":"Days 15–21","tasks":["t1","t2","t3","t4"]},{"phase":4,"title":"Launch & Grow","days":"Days 22–30","tasks":["t1","t2","t3","t4"]}]}`}],1000);
+    renderLaunch(JSON.parse(t.replace(/```json|```/g,'').trim()));
+  }catch(e){
+    renderLaunch({launch_goal:"100 sign-ups",phases:[
+      {phase:1,title:"Foundation",days:"Days 1–7",tasks:["Define your core promise in one sentence","Set up a landing page with email sign-up","Create 3 content pieces showing your expertise","Post daily on 1-2 platforms where your audience lives"]},
+      {phase:2,title:"Content & Community",days:"Days 8–14",tasks:["Share a behind-the-scenes preview of your product","Join 3 communities where your audience hangs out","Offer a free workshop or live Q&A to build trust","Collect 5 testimonials from early testers"]},
+      {phase:3,title:"Pre-launch buzz",days:"Days 15–21",tasks:["Send a waitlist-only sneak peek email","Post a countdown series on social media","DM 20 people personally and invite them to try it","Partner with a complementary creator for a shoutout"]},
+      {phase:4,title:"Launch & Grow",days:"Days 22–30",tasks:["Announce the launch across all channels","Go live to walk through the product and answer questions","Ask every user for feedback and a testimonial","Identify your top fans as future paid beta users"]}
+    ]});
+  }
+  unlock('sales');unlock('emails');updProgress();
+}
+
+const phC=['pn1','pn2','pn3','pn4'];
+function renderLaunch(p){
+  let h=`<div class="rev-row"><div class="rv"><div class="rv-val">${p.launch_goal}</div><div class="rv-lbl">Launch goal</div></div><div class="rv"><div class="rv-val">$1/mo</div><div class="rv-lbl">Price</div></div><div class="rv"><div class="rv-val">30 days</div><div class="rv-lbl">Timeline</div></div></div><div class="phases">`;
+  p.phases.forEach((ph,i)=>{
+    h+=`<div class="ph-card"><div class="ph-hdr"><div class="ph-num ${phC[i]}">${ph.phase}</div><div class="ph-title">${ph.title}</div><div class="ph-time">${ph.days}</div></div><div class="ph-body">${ph.tasks.map((t,ti)=>`<div class="task" id="tk-${i}-${ti}"><div class="tck" onclick="toggleT('tk-${i}-${ti}')"></div><span class="ttxt">${t}</span></div>`).join('')}</div></div>`;
+  });
+  h+='</div>';document.getElementById('launch-content').innerHTML=h;
+}
+
+function toggleT(id){const el=document.getElementById(id);el.querySelector('.tck').classList.toggle('done');el.classList.toggle('done');}
+
+async function initSales(){
+  if(salesDone)return;salesDone=true;
+  const title=document.getElementById('p-title').value||(bpData&&bpData.product_name)||'my digital product';
+  const aud=document.getElementById('p-audience').value||(bpData&&bpData.target_audience)||'people ready to grow';
+  const outcome=document.getElementById('p-outcome').value||'transform your life';
+  try{
+    const text=await claude([{role:'user',content:`Write a compelling sales page for "${title}" targeting ${aud}. Transformation: ${outcome}. Unique angle: ${bpData?bpData.differentiator:'authentic perspective'}. Sections labeled: HEADLINE: SUBHEADLINE: THE PROBLEM: THE SOLUTION: WHAT YOU'LL GET: WHO THIS IS FOR: CALL TO ACTION: Plain text only.`}],800);
+    renderSales(text);
+  }catch(e){renderSales(`HEADLINE:\nStop Guessing. Start Growing.\n\nSUBHEADLINE:\nThe blueprint that shows you exactly how to turn what you know into income.\n\nTHE PROBLEM:\nYou have valuable knowledge but no idea how to package or sell it.\n\nTHE SOLUTION:\n${title} walks you step-by-step through clarifying your message and finding your audience.\n\nWHAT YOU'LL GET:\n→ A clear positioning statement\n→ A content strategy built around your strengths\n→ A 30-day action plan\n→ Sales copy and email sequence\n\nWHO THIS IS FOR:\n• You know your stuff but don't know how to monetize it\n• You're ready to stop trading time for money\n• You want a real system, not just inspiration\n\nCALL TO ACTION:\nGet started for $1/month\nNo long-term commitment. Cancel anytime.`);}
+  updProgress();
+}
+
+function renderSales(text){
+  const sections=text.split(/\n(?=[A-Z ]+:)/);let html='';
+  sections.forEach(s=>{
+    const colon=s.indexOf(':');if(colon===-1)return;
+    const label=s.slice(0,colon).trim();const body=s.slice(colon+1).trim();
+    const isDark=label==='HEADLINE';
+    html+=`<div style="${isDark?'background:var(--navy);color:#fff;border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:10px':'background:var(--surface);border:.5px solid var(--border);border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:10px'}"><div style="font-size:10px;font-weight:700;${isDark?'color:rgba(255,255,255,.45)':'color:var(--hint)'};text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">${label}</div><div style="${isDark?'font-family:var(--serif);font-size:20px;color:#fff;line-height:1.3':'font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap'}">${body}</div></div>`;
+  });
+  html+=`<div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-blue" onclick="navigator.clipboard.writeText(window._salesText||'').catch(()=>{})">Copy all copy</button><button class="btn btn-out" onclick="salesDone=false;initSales()">↺ Regenerate</button></div>`;
+  document.getElementById('sales-content').innerHTML=html;window._salesText=text;
+}
+
+async function initEmails(){
+  if(emailsDone)return;emailsDone=true;
+  const title=document.getElementById('p-title').value||(bpData&&bpData.product_name)||'my product';
+  const aud=document.getElementById('p-audience').value||(bpData&&bpData.target_audience)||'new subscribers';
+  try{
+    const text=await claude([{role:'user',content:`Write a 5-email welcome + launch sequence for "${title}" for "${aud}". Email 1: Welcome (immediate). Email 2: Their #1 problem (Day 2). Email 3: Big insight/quick win (Day 3). Email 4: Social proof + value (Day 5). Email 5: Soft invitation to stay (Day 7). Conversational, 150-200 words each. Format: EMAIL 1\nSubject: [subject]\n[body]\n\nEMAIL 2\n... etc. Plain text only.`}],1500);
+    renderEmails(text);
+  }catch(e){renderEmails(`EMAIL 1\nSubject: Here's your access to ${title}\n\nHey!\n\nYou're in. Here's your instant access.\n\nI made this because I know exactly what it feels like to have knowledge and drive but no clear path forward. This is that path.\n\nTake 10 minutes today. You'll walk away with more clarity than you've had in months.\n\n[Your name]\n\nEMAIL 2\nSubject: The real reason you're stuck\n\nHey,\n\nMost people who want to share their knowledge online don't fail because they lack talent. They fail because they never get clear on WHO they're talking to and WHAT problem they solve.\n\nThat's the whole secret.\n\nIf you haven't gone through ${title} yet, that's the first thing it'll fix for you.\n\nTomorrow I'll share the one insight that changes everything.\n\n[Your name]`);}
+  updProgress();
+}
+
+function renderEmails(text){
+  const blocks=text.split(/\n(?=EMAIL \d)/);const tags=['Welcome','Day 2','Day 3','Day 5','Day 7'];
+  let html='<div class="em-list">';
+  blocks.forEach((b,i)=>{
+    const lines=b.trim().split('\n');const subjLine=lines.find(l=>l.toLowerCase().startsWith('subject:'));
+    const subj=subjLine?subjLine.replace(/^subject:\s*/i,''):'Email '+(i+1);
+    const body=lines.filter(l=>!l.toLowerCase().startsWith('subject:')&&l!==lines[0]).join('\n').trim();
+    html+=`<div class="em-card"><div class="em-hdr" onclick="toggleEmail(${i})"><div class="em-num">${i+1}</div><div class="em-subj">${subj}</div><div class="em-tag">${tags[i]||'Email '+(i+1)}</div><span id="ec-${i}" style="font-size:14px;color:var(--hint);margin-left:4px">▾</span></div><div class="em-body hidden" id="eb-${i}">${body}<br><button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('eb-${i}').innerText).catch(()=>{});event.stopPropagation()">⎘ Copy email</button></div></div>`;
+    window['_em_'+i]=`Subject: ${subj}\n\n${body}`;
+  });
+  html+='</div><div style="margin-top:12px"><button class="btn btn-blue" onclick="navigator.clipboard.writeText(Object.keys(window).filter(k=>k.startsWith(\'_em_\')).map(k=>window[k]).join(\'\\n\\n---\\n\\n\')).catch(()=>{})">Copy all 5 emails</button> <button class="btn btn-out" onclick="emailsDone=false;initEmails()">↺ Regenerate</button></div>';
+  document.getElementById('emails-content').innerHTML=html;window._allEmails=text;
+}
+
+function toggleEmail(i){const b=document.getElementById('eb-'+i);const ic=document.getElementById('ec-'+i);b.classList.toggle('hidden');ic.textContent=b.classList.contains('hidden')?'▾':'▴';}
+
+function unlock(name){const b=document.getElementById('bd-'+name);if(b){b.className='badge b-go';b.textContent='Ready';}}
+
+function updProgress(){
+  let done=0;
+  if(Object.keys(ans).length>=3)done++;if(bpData)done++;
+  if(document.getElementById('p-title').value)done++;if(launchDone)done++;if(salesDone)done++;if(emailsDone)done++;
+  const pct=Math.round((done/6)*100);
+  document.getElementById('sp-fill').style.width=pct+'%';document.getElementById('sp-pct').textContent=pct+'%';
+}
+
+function sv(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.querySelectorAll('.ht').forEach(h=>h.classList.remove('on'));
+  const v=document.getElementById('view-'+name);if(v)v.classList.add('on');
+  const n=document.getElementById('ni-'+name);if(n)n.classList.add('on');
+  const htMap={quiz:0,bp:0,builder:1,launch:2,sales:3,emails:4};
+  const hts=document.querySelectorAll('.ht');
+  if(htMap[name]!==undefined&&hts[htMap[name]])hts[htMap[name]].classList.add('on');
+  if(name==='sales'&&!salesDone)initSales();
+  if(name==='emails'&&!emailsDone)initEmails();
+}
+
+verifyAccess();
+</script>
+</body>
+</html>
